@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,16 +32,15 @@ public class Main2Activity extends AppCompatActivity {
     private Handler mSeekbarUpdateHandler;
     private static final String TAG = "Main2Activity";
     BroadcastReceiver broadcastReceiver;
-
+    LocalBroadcastManager localBroadcastManager;
     @Override
     protected void onStart() {
         super.onStart();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.tutorialsface.audioplayer.previous");
-        intentFilter.addAction("com.tutorialsface.audioplayer.pause");
-        intentFilter.addAction("com.tutorialsface.audioplayer.next");
-
-        registerReceiver(broadcastReceiver, intentFilter);
+//        IntentFilter intentFilter = new IntentFilter();
+//        intentFilter.addAction("com.tutorialsface.audioplayer.previous");
+//        intentFilter.addAction("com.tutorialsface.audioplayer.pause");
+//        intentFilter.addAction("com.tutorialsface.audioplayer.next");
+//        localBroadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -58,32 +58,32 @@ public class Main2Activity extends AppCompatActivity {
         seekBar = findViewById(R.id.seekBar);
         broadcastReceiver = new BroadcastReceiverNotification();
 
-        Intent intent = new Intent();
-        intent.setAction("my.custom.action.tag.fortedemo");
-        intent.setAction("com.tutorialsface.audioplayer.previous");
-        intent.setAction("com.tutorialsface.audioplayer.pause");
-        intent.setAction("com.tutorialsface.audioplayer.next");
-        sendBroadcast(intent);
+//        final Intent intent = new Intent();
+//        intent.setAction("my.custom.action.tag.fortedemo");
+//        intent.setAction("com.tutorialsface.audioplayer.previous");
+//        intent.setAction("com.tutorialsface.audioplayer.pause");
+//        intent.setAction("com.tutorialsface.audioplayer.next");
+//        sendBroadcast(intent);
 
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser){
-                    sound.seekTo(progress);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
+//        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//                if(fromUser){
+//                    sound.seekTo(progress);
+//                }
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//        });
 
 
         play.setOnClickListener(new View.OnClickListener() {
@@ -93,75 +93,81 @@ public class Main2Activity extends AppCompatActivity {
                 Intent intentPlay = new Intent(Main2Activity.this, ServiceNotification.class);
                 intentPlay.putExtra("play", "Play");
                 startService(intentPlay);
-                if(sound == null){
-                    sound = MediaPlayer.create(Main2Activity.this, R.raw.s5);
-                    sound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            stopPlayer();
-                        }
-                    });
-                }
-                sound.start();
-                seekBar.setMax(sound.getDuration());
-                mUpdateSeekbar.run();
+//                if(sound == null){
+//                    sound = MediaPlayer.create(Main2Activity.this, R.raw.s5);
+//                    sound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//                        @Override
+//                        public void onCompletion(MediaPlayer mp) {
+//                            stopPlayer();
+//                        }
+//                    });
+//                }
+//                sound.start();
+//                seekBar.setMax(sound.getDuration());
+//                mUpdateSeekbar.run();
             }
         });
 
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(sound != null){
-                    sound.pause();
-                }
+                Intent intentPause = new Intent(Main2Activity.this, ServiceNotification.class);
+                intentPause.putExtra("pause", "Pause");
+                startService(intentPause);
+//                if(sound != null){
+//                    sound.pause();
+//                }
             }
         });
 
         stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSeekbarUpdateHandler.removeCallbacks(mUpdateSeekbar);
-                stopPlayer();
+                Intent intentStop = new Intent(Main2Activity.this, ServiceNotification.class);
+                intentStop.putExtra("stop", "Stop");
+                startService(intentStop);
+//                mSeekbarUpdateHandler.removeCallbacks(mUpdateSeekbar);
+//                stopPlayer();
             }
         });
 
 
     }
 
-    private Runnable mUpdateSeekbar = new Runnable() {
-        @Override
-        public void run() {
-            seekBar.setProgress(sound.getCurrentPosition());
-            mSeekbarUpdateHandler.postDelayed(this, 1000);
-        }
-    };
+//    private Runnable mUpdateSeekbar = new Runnable() {
+//        @Override
+//        public void run() {
+//            seekBar.setProgress(sound.getCurrentPosition());
+//            mSeekbarUpdateHandler.postDelayed(this, 1000);
+//        }
+//    };
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mSeekbarUpdateHandler.removeCallbacks(mUpdateSeekbar);
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+////        mSeekbarUpdateHandler.removeCallbacks(mUpdateSeekbar);
+//    }
 
-    @TargetApi(Build.VERSION_CODES.O)
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    protected void onStop() {
-        super.onStop();
+//    @TargetApi(Build.VERSION_CODES.O)
+//    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
 
-        Intent intent = new Intent(this, ServiceNotification.class);
-        intent.putExtra("Current Position", sound.getCurrentPosition());
-        sound.release();
+//        Intent intent = new Intent(this, ServiceNotification.class);
+//        intent.putExtra("Current Position", sound.getCurrentPosition());
+//        sound.release();
 //        ContextCompat.startForegroundService(this, intent);
-        startService(intent);
+//        startService(intent);
 
-    }
+//    }
 
-    private void stopPlayer() {
-        if (sound != null) {
-            sound.release();
-            sound = null;
-            Toast.makeText(this, "MediaPlayer released", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    private void stopPlayer() {
+//        if (sound != null) {
+//            sound.release();
+//            sound = null;
+//            Toast.makeText(this, "MediaPlayer released", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
 }

@@ -32,10 +32,9 @@
         <receiver android:name=".BroadcastReceiverNotification" android:enabled="true" android:exported="true">
             <intent-filter>
 
-                <action android:name="my.custom.action.tag.fortedemo" />
-                <action android:name="com.tutorialsface.audioplayer.previous"/>
-                <action android:name="com.tutorialsface.audioplayer.pause"/>
-                <action android:name="com.tutorialsface.audioplayer.next"/>
+                <action android:name="com.example.karshsoni.soundpool.previous"/>
+                <action android:name="com.example.karshsoni.soundpool.pause"/>
+                <action android:name="com.example.karshsoni.soundpool.next"/>
 
             </intent-filter>
 

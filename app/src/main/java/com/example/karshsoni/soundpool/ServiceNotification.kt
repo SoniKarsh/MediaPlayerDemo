@@ -13,6 +13,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import android.app.PendingIntent
 import android.content.Context
+import android.graphics.Color
 import android.widget.SeekBar
 import android.widget.Toast
 import com.example.karshsoni.soundpool.R.id.seekBar
@@ -20,18 +21,18 @@ import com.example.karshsoni.soundpool.R.id.seekBar
 
 class ServiceNotification : Service() {
 
-    val NOTIFY_PREVIOUS = "com.tutorialsface.audioplayer.previous"
-    val NOTIFY_DELETE = "com.tutorialsface.audioplayer.delete"
-    val NOTIFY_PAUSE = "com.tutorialsface.audioplayer.pause"
-    val NOTIFY_PLAY = "com.tutorialsface.audioplayer.play"
-    val NOTIFY_NEXT = "com.tutorialsface.audioplayer.next"
+    val NOTIFY_PREVIOUS = "com.example.karshsoni.soundpool.previous"
+
+    val NOTIFY_PAUSE = "com.example.karshsoni.soundpool.pause"
+
+    val NOTIFY_NEXT = "com.example.karshsoni.soundpool.next"
 
     lateinit var notificationManager: NotificationManager
-    lateinit var notificationchannel: NotificationChannel
+    lateinit var notificationChannel: NotificationChannel
     lateinit var builder: Notification.Builder
-    private val channelId= "com.example.karshsoni.soundpool"
+    private val channelId= "com.example.karshsoni.soundpool.abc"
     private val name="testNotification"
-    var mediaPlayer = MediaPlayer()
+    var mediaPlayer :MediaPlayer? = null
 
     companion object {
         var count:Int = 0
@@ -49,54 +50,66 @@ class ServiceNotification : Service() {
         Log.i(TAG, "On Destroy")
     }
 
-
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        if(intent!!.extras.getString("play") == "Play"){
-
-            mediaPlayer = MediaPlayer.create(this, R.raw.s5)
-            mediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener {
-                stopPlayer()
-            })
-        }
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.s5)
-        var currentPosition = intent.extras.getInt("Current Position")
+//        mediaPlayer = MediaPlayer.create(this, R.raw.s5)
+//        var currentPosition = intent.extras.getInt("Current Position")
 //        var intentX = Intent()
         Log.i(TAG, "OnStartCommand")
+
         Thread(Runnable {
             Log.i(TAG, "In Thread")
-            mediaPlayer.seekTo(currentPosition)
-            mediaPlayer.start()
-            if(intent.extras.getString("PAUSE").equals("Pause")){
-                mediaPlayer.pause()
-            }
-//            shownotification(currentPosition)
-            while (!isStopped) {
-                mediaPlayer.setOnCompletionListener {
-                    isStopped = true
-                    stopSelf()
+            if(intent!!.extras.getString("play") == "Play"){
+                if(mediaPlayer == null){
+                    mediaPlayer = MediaPlayer.create(this, R.raw.s5)
                 }
-                shownotification()
-//                startForeground(channelId, shownotification(currentPosition))
-
-
+                mediaPlayer!!.start()
+                mediaPlayer!!.setOnCompletionListener(MediaPlayer.OnCompletionListener {
+                    isStopped = true
+                    if (mediaPlayer != null) {
+                        Toast.makeText(this, "In Stop", Toast.LENGTH_SHORT).show()
+                        mediaPlayer!!.release()
+                        mediaPlayer = null
+                        Toast.makeText(this, "MediaPlayer released", Toast.LENGTH_SHORT).show()
+                    }
+                })
             }
+            else if(intent.extras.getString("pause") == "Pause"){
+                if (mediaPlayer != null) {
+                    mediaPlayer!!.pause()
+                }
+            }else if(intent.extras.getString("stop") == "Stop"){
+                if(mediaPlayer!=null){
+                    mediaPlayer!!.release()
+                    mediaPlayer = null
+                }
+            }else if(intent.extras.getString("PAUSE") == "Pause"){
+                if (mediaPlayer != null) {
+                    mediaPlayer!!.pause()
+                }
+            }else if(intent.extras.getString("PLAY") == "Play"){
+                if(mediaPlayer == null){
+                    mediaPlayer = MediaPlayer.create(this, R.raw.s5)
+                }
+                mediaPlayer!!.start()
+                mediaPlayer!!.setOnCompletionListener(MediaPlayer.OnCompletionListener {
+                    isStopped = true
+                    if (mediaPlayer != null) {
+                        Toast.makeText(this, "In Stop", Toast.LENGTH_SHORT).show()
+                        mediaPlayer!!.release()
+                        mediaPlayer = null
+                        Toast.makeText(this, "MediaPlayer released", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+            shownotification()
         }).start()
 
         Log.i(TAG, ": Out thread -> " + count.toString())
         return Service.START_STICKY
     }
 
-    private fun stopPlayer() {
-        if (mediaPlayer != null) {
-            mediaPlayer.release()
-            mediaPlayer = null
-            Toast.makeText(this, "MediaPlayer released", Toast.LENGTH_SHORT).show()
-        }
-    }
 
 
     fun setListeners(view: RemoteViews, context: Context) {
@@ -108,37 +121,43 @@ class ServiceNotification : Service() {
 //        previous.putExtra("DO", "Previous")
         val bundle  = Bundle()
 
-        previous.putExtra("Media", mediaPlayer.currentPosition)
+//        previous.putExtra("Media", mediaPlayer!!.currentPosition)
         val pPrevious = PendingIntent.getBroadcast(context, 0, previous, PendingIntent.FLAG_UPDATE_CURRENT)
         view.setOnClickPendingIntent(R.id.btnPrev, pPrevious)
 //
 //        val play = Intent(this, BroadcastReceiverNotification::class.java)
 //        play.putExtra("DO", "Play")
 //        pause.putExtra("DO", "Pause")
-        pause.putExtra("Media", mediaPlayer.currentPosition)
+//        pause.putExtra("Media", mediaPlayer!!.currentPosition)
         val pPause = PendingIntent.getBroadcast(context, 0, pause, PendingIntent.FLAG_UPDATE_CURRENT)
         view.setOnClickPendingIntent(R.id.btnPausePlay, pPause)
 
 //        val nextI = Intent(this, BroadcastReceiverNotification::class.java)
 //        nextI.putExtra("DO", "Next")
 //        next.putExtra("DO", "Next")
-        next.putExtra("Media", mediaPlayer.currentPosition)
+//        next.putExtra("Media", mediaPlayer!!.currentPosition)
         val pNext = PendingIntent.getBroadcast(context, 0, next, PendingIntent.FLAG_UPDATE_CURRENT)
         view.setOnClickPendingIntent(R.id.btnNext, pNext)
 
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
-
     fun shownotification(){
 
         val notificationLayout  = RemoteViews(this.packageName, R.layout.status_bar)
 //        val notificationLayoutExpanded = RemoteViews(this.packageName, R.layout.status_bar_expanded)
 
         var notificationIntent = Intent(this, Main2Activity::class.java)
-        notificationIntent.putExtra("Current Position", mediaPlayer.currentPosition)
+//        notificationIntent.putExtra("Current Position", mediaPlayer!!.currentPosition)
         var pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+
+//        notificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+//
+//        notificationChannel = NotificationChannel(channelId, "Notification", NotificationManager.IMPORTANCE_HIGH)
+//        notificationChannel.enableLights(true)
+//        notificationChannel.lightColor = Color.BLUE
+//        notificationChannel.enableVibration(false)
+//        notificationManager.createNotificationChannel(notificationChannel)
 
         var notification = NotificationCompat.Builder(this, channelId)
                 .setContentTitle("Example Service")
