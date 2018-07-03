@@ -21,8 +21,7 @@
         </activity>
         <activity android:name=".MainActivity" />
 
-        <service android:name=".ExampleService"/>
-
+        <service android:name=".ExampleService" />
         <service
             android:name=".ExampleJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
@@ -30,9 +29,21 @@
             android:name=".ServiceNotification"
             android:process=":something" />
 
-        <receiver android:name=".BroadcastReceiverNotification"/>
+        <receiver android:name=".BroadcastReceiverNotification" android:enabled="true" android:exported="true">
+            <intent-filter>
 
-        <activity android:name=".Main3Activity"></activity>
+                <action android:name="my.custom.action.tag.fortedemo" />
+                <action android:name="com.tutorialsface.audioplayer.previous"/>
+                <action android:name="com.tutorialsface.audioplayer.pause"/>
+                <action android:name="com.tutorialsface.audioplayer.next"/>
+
+            </intent-filter>
+
+        </receiver>
+
+        <activity android:name=".Main3Activity" />
+
+        <activity android:name=".Main4Activity"></activity>
     </application>
 
 </manifest>

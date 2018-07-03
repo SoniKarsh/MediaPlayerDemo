@@ -3,8 +3,10 @@ package com.example.karshsoni.soundpool;
 import android.annotation.TargetApi;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Handler;
@@ -28,6 +30,18 @@ public class Main2Activity extends AppCompatActivity {
     SeekBar seekBar;
     private Handler mSeekbarUpdateHandler;
     private static final String TAG = "Main2Activity";
+    BroadcastReceiver broadcastReceiver;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.tutorialsface.audioplayer.previous");
+        intentFilter.addAction("com.tutorialsface.audioplayer.pause");
+        intentFilter.addAction("com.tutorialsface.audioplayer.next");
+
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -42,9 +56,14 @@ public class Main2Activity extends AppCompatActivity {
         stop = findViewById(R.id.btnStop);
 
         seekBar = findViewById(R.id.seekBar);
+        broadcastReceiver = new BroadcastReceiverNotification();
 
-        Intent getIntent = new Intent();
-
+        Intent intent = new Intent();
+        intent.setAction("my.custom.action.tag.fortedemo");
+        intent.setAction("com.tutorialsface.audioplayer.previous");
+        intent.setAction("com.tutorialsface.audioplayer.pause");
+        intent.setAction("com.tutorialsface.audioplayer.next");
+        sendBroadcast(intent);
 
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -70,8 +89,12 @@ public class Main2Activity extends AppCompatActivity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Intent intentPlay = new Intent(Main2Activity.this, ServiceNotification.class);
+                intentPlay.putExtra("play", "Play");
+                startService(intentPlay);
                 if(sound == null){
-                    sound = MediaPlayer.create(Main2Activity.this, R.raw.s3);
+                    sound = MediaPlayer.create(Main2Activity.this, R.raw.s5);
                     sound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
                         public void onCompletion(MediaPlayer mp) {
